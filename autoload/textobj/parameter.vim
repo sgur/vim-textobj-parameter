@@ -30,6 +30,10 @@
 
 " i, による選択処理
 function! textobj#parameter#select_i()  "{{{2
+	if v:count == 2
+		return s:select_a(0)
+	endif
+
 	return s:select(s:const_skip_space)
 endfunction
 
@@ -38,31 +42,7 @@ endfunction
 " a, による選択処理
 " 一階層上のパラメータ選択を行う
 function! textobj#parameter#select_a()  "{{{2
-	let result = s:select(!s:const_skip_space)
-	if type(result) == type(0)
-		return 0
-	endif
-
-	let [spos, epos] = [result[1], result[2]]
-
-	" 右側に隣接するのがcomma/semicolonだったら、それも含めて削除
-	call cursor(epos[1:2])
-	let [end_chr, epos_new] = s:search_pos('', [',',';',')','>',']','}'],[])
-	if end_chr == ',' || end_chr == ';'
-		let result[2] = s:normalize(epos_new)
-		return result
-	endif
-
-	" 左側に隣接するのがcomma/semicolonだったら、それも含めて削除
-	call cursor(spos[1:2])
-	let [start_chr, spos_new] = s:search_pos('b', [',',';','(','<','[','{'],[])
-	if start_chr == ',' || start_chr == ';'
-		let result[1] = s:normalize(spos_new)
-		return result
-	endif
-
-	" どちらでもなければ、select_iと同じ挙動
-	return result
+	return s:select_a(1)
 endfunction
 
 
@@ -79,6 +59,52 @@ let s:separators = [',',';']
 " ネストを考慮する括弧のペア
 let s:bracket_pairs = [['(',')'], ['[',']'],['{','}'],['<','>']]
 
+
+function! s:select_a(surrounds)
+	let result = s:select(!s:const_skip_space)
+	if type(result) == type(0)
+		return 0
+	endif
+
+	let [spos, epos] = [result[1], result[2]]
+
+	" 右側に隣接するのがcomma/semicolonだったら、それも含めて削除
+	call cursor(epos[1:2])
+	let [end_chr, epos_new] = s:search_pos('', [',',';',')','>',']','}'],[])
+	if end_chr == ',' || end_chr == ';'
+		if a:surrounds
+			let epos_new = s:skip_ws(epos_new, 1)
+		endif
+		let result[2] = s:normalize(epos_new)
+		return result
+	endif
+
+	" 左側に隣接するのがcomma/semicolonだったら、それも含めて削除
+	call cursor(spos[1:2])
+	let [start_chr, spos_new] = s:search_pos('b', [',',';','(','<','[','{'],[])
+	if start_chr == ',' || start_chr == ';'
+		let result[1] = s:normalize(spos_new)
+		return result
+	endif
+
+	" どちらでもなければ、select_iと同じ挙動
+	return result
+endfunction
+
+" 連続する空白をスキップする
+function! s:skip_ws(pos, forward)
+	let [lnum, col] = a:pos
+	let line = getline(lnum)
+	let cols = a:forward > 0
+				\ ? range(col, len(line)-1)
+				\ : range(col-1, 0, -1)
+	for c in cols
+		if line[c] != ' '
+			return [lnum, c]
+		endif
+	endfor
+	return a:pos
+endfunction
 
 " 指定した位置のシンタックスが文字列またはコメントかどうかを判定
 function! s:is_ignore_syntax(pos)  "{{{2
@@ -379,3 +405,4 @@ endfunction
 
 let s:const_skip_space = 1
 
+" vim: ts=2 sw=2 noet
