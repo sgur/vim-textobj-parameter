@@ -23,6 +23,7 @@
 "     TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 "     SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 " }}}
+
 if exists('g:loaded_textobj_parameter')  "{{{1
   finish
 endif
@@ -31,11 +32,14 @@ endif
 " Interface  "{{{1
 
 call textobj#user#plugin('parameter', {
-\      '-': {
-\        'select-i': "i,",  '*select-i-function*': 'textobj#parameter#select_i',
-\        'select-a': "a,",  '*select-a-function*': 'textobj#parameter#select_a',
-\      }
-\    })
+      \   '-': {
+      \     'select-a': "a,",  '*select-a-function*': 'textobj#parameter#select_a'
+      \   , 'select-i': "i,",  '*select-i-function*': 'textobj#parameter#select_i'
+      \   }
+      \ , 'greedy': {
+      \     'select-i': "i2,",  '*select-i-function*': 'textobj#parameter#select_greedy_i'
+      \   }
+      \ })
 
 
 " Fin.  "{{{1

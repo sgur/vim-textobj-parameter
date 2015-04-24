@@ -27,16 +27,16 @@
 " Interface  "{{{1
 
 
-
 " i, による選択処理
 function! textobj#parameter#select_i()  "{{{2
-	if v:count == 2
-		return s:select_a(0)
-	endif
-
 	return s:select(s:const_skip_space)
 endfunction
 
+
+" i2, による選択処理
+function! textobj#parameter#select_greedy_i()  "{{{2
+	return s:select_a(0)
+endfunction
 
 
 " a, による選択処理
@@ -44,7 +44,6 @@ endfunction
 function! textobj#parameter#select_a()  "{{{2
 	return s:select_a(1)
 endfunction
-
 
 
 " Misc.  "{{{1
@@ -60,7 +59,7 @@ let s:separators = [',',';']
 let s:bracket_pairs = [['(',')'], ['[',']'],['{','}'],['<','>']]
 
 
-function! s:select_a(surrounds)
+function! s:select_a(include_surrounds)
 	let result = s:select(!s:const_skip_space)
 	if type(result) == type(0)
 		return 0
@@ -72,23 +71,23 @@ function! s:select_a(surrounds)
 	call cursor(epos[1:2])
 	let [end_chr, epos_new] = s:search_pos('', [',',';',')','>',']','}'],[])
 	if end_chr == ',' || end_chr == ';'
-		if a:surrounds
-			let epos_new = s:skip_ws(epos_new, 1)
-		endif
-		let result[2] = s:normalize(epos_new)
-		return result
+	if a:include_surrounds
+		let epos_new = s:skip_ws(epos_new, 1)
 	endif
-
-	" 左側に隣接するのがcomma/semicolonだったら、それも含めて削除
-	call cursor(spos[1:2])
-	let [start_chr, spos_new] = s:search_pos('b', [',',';','(','<','[','{'],[])
-	if start_chr == ',' || start_chr == ';'
-		let result[1] = s:normalize(spos_new)
-		return result
-	endif
-
-	" どちらでもなければ、select_iと同じ挙動
+	let result[2] = s:normalize(epos_new)
 	return result
+endif
+
+" 左側に隣接するのがcomma/semicolonだったら、それも含めて削除
+call cursor(spos[1:2])
+let [start_chr, spos_new] = s:search_pos('b', [',',';','(','<','[','{'],[])
+if start_chr == ',' || start_chr == ';'
+	let result[1] = s:normalize(spos_new)
+	return result
+endif
+
+" どちらでもなければ、select_iと同じ挙動
+return result
 endfunction
 
 " 連続する空白をスキップする
@@ -396,11 +395,11 @@ function! s:select(skip_space) " {{{2
 	let [end_chr, epos] = s:search_pos('', s:separators, bracket_pairs_f)
 	" 前方、後方のいずれかで文字をみつけられなかった場合は何も選択しない
 	if start_chr == '' || end_chr == ''
-		return 0
-	endif
+	return 0
+endif
 
-	" 検索結果のチェック
-	return s:filter(start_chr, spos, end_chr, epos, a:skip_space)
+" 検索結果のチェック
+return s:filter(start_chr, spos, end_chr, epos, a:skip_space)
 endfunction
 
 let s:const_skip_space = 1
