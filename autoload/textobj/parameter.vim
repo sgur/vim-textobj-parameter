@@ -67,27 +67,27 @@ function! s:select_a(include_surrounds)
 
 	let [spos, epos] = [result[1], result[2]]
 
+	" 左側に隣接するのがcomma/semicolonだったら、それも含めて削除
+	call cursor(spos[1:2])
+	let [start_chr, spos_new] = s:search_pos('b', [',',';','(','<','[','{'],[])
+	if start_chr == ',' || start_chr == ';'
+		let result[1] = s:normalize(spos_new)
+		return result
+	endif
+
 	" 右側に隣接するのがcomma/semicolonだったら、それも含めて削除
 	call cursor(epos[1:2])
 	let [end_chr, epos_new] = s:search_pos('', [',',';',')','>',']','}'],[])
 	if end_chr == ',' || end_chr == ';'
-	if a:include_surrounds
-		let epos_new = s:skip_ws(epos_new, 1)
+		if a:include_surrounds
+			let epos_new = s:skip_ws(epos_new, 1)
+		endif
+		let result[2] = s:normalize(epos_new)
+		return result
 	endif
-	let result[2] = s:normalize(epos_new)
-	return result
-endif
 
-" 左側に隣接するのがcomma/semicolonだったら、それも含めて削除
-call cursor(spos[1:2])
-let [start_chr, spos_new] = s:search_pos('b', [',',';','(','<','[','{'],[])
-if start_chr == ',' || start_chr == ';'
-	let result[1] = s:normalize(spos_new)
+	" どちらでもなければ、select_iと同じ挙動
 	return result
-endif
-
-" どちらでもなければ、select_iと同じ挙動
-return result
 endfunction
 
 " 連続する空白をスキップする

@@ -52,6 +52,12 @@ describe '<Plug>(textobj-parameter-a)'
     tabnew
     tabonly!
 
+    " function s:function(param_a, param_b, param_c)
+    "|---------+---------+---------+---------+---------|
+    "0         10        20      ||30    ||  40   |    50
+    "                     |-------|      ||       |
+    "                            |-------||       |
+    "                                     |-------|
     silent put =[
           \ 'function s:function(param_a, param_b, param_c)'
           \ , '  echo ...'
@@ -68,8 +74,8 @@ describe '<Plug>(textobj-parameter-a)'
     Expect [line("'>"), col("'>")] ==# [1, 29]
     normal! 0f,l
     execute "normal v\<Plug>(textobj-parameter-a)\<Esc>"
-    Expect [line("'<"), col("'<")] ==# [1, 29]
-    Expect [line("'>"), col("'>")] ==# [1, 38]
+    Expect [line("'<"), col("'<")] ==# [1, 28]
+    Expect [line("'>"), col("'>")] ==# [1, 36]
     normal! 0f,;l
     execute "normal v\<Plug>(textobj-parameter-a)\<Esc>"
     Expect [line("'<"), col("'<")] ==# [1, 37]
@@ -83,8 +89,8 @@ describe '<Plug>(textobj-parameter-a)'
     Expect [line("']"), col("']")] ==# [1, 29]
     normal! 0f,l
     execute "silent normal y\<Plug>(textobj-parameter-a)"
-    Expect [line("'["), col("'[")] ==# [1, 29]
-    Expect [line("'["), col("']")] ==# [1, 38]
+    Expect [line("'["), col("'[")] ==# [1, 28]
+    Expect [line("'["), col("']")] ==# [1, 36]
     normal! 0f,;l
     execute "silent normal y\<Plug>(textobj-parameter-a)"
     Expect [line("'["), col("'[")] ==# [1, 37]
@@ -95,75 +101,107 @@ end
 
 
 
-" describe '<Plug>(textobj-parameter-i)'
-"   before
-"     tabnew
-"     tabonly!
-"
-"     silent put =[
-"           \   'if some_condition_is_satisfied',
-"           \   '  if another_condition_is_satisfied',
-"           \   '    call s:special_stuff()',
-"           \   '  endif',
-"           \   '  call s:normal_stuff()',
-"           \   '',
-"           \   '  ...',
-"           \   '  endif',
-"           \   'else',
-"           \   '  ...',
-"           \   'endif',
-"           \ ]
-"     1 delete _
-"     normal! 4G
-"   end
-"
-"   it 'selects proper range of text'
-"     execute "normal v\<Plug>(textobj-indent-i)\<Esc>"
-"     Expect [line("'<"), col("'<")] ==# [2, 1]
-"     Expect [line("'>"), col("'>")] ==# [5, 24]
-"   end
-"
-"   it 'targets proper range of text'
-"     execute "silent normal y\<Plug>(textobj-indent-i)"
-"     Expect [line("'["), col("'[")] ==# [2, 1]
-"     Expect [line("']"), col("']")] ==# [5, 24]
-"   end
-" end
-"
-"
-"
-"
-" describe '<Plug>(textobj-parameter-greedy-i)'
-"   before
-"     tabnew
-"     tabonly!
-"
-"     silent put =[
-"           \   'if some_condition_is_satisfied',
-"           \   '  if another_condition_is_satisfied',
-"           \   '    call s:special_stuff()',
-"           \   '  endif',
-"           \   '  call s:normal_stuff()',
-"           \   '',
-"           \   '  ...',
-"           \   '  endif',
-"           \   'else',
-"           \   '  ...',
-"           \   'endif',
-"           \ ]
-"     1 delete _
-"     normal! 4G
-"   end
-"
-"   it 'selects proper range of text'
-"     execute "normal v\<Plug>(textobj-indent-same-i)\<Esc>"
-"     Expect [line("'<"), col("'<")] ==# [4, 1]
-"     Expect [line("'>"), col("'>")] ==# [5, 24]
-"   end
-"
-"   it 'targets proper range of text'
-"     execute "silent normal y\<Plug>(textobj-indent-same-i)"
-"     Expect [line("'["), col("'[")] ==# [4, 1]
-"     Expect [line("']"), col("']")] ==# [5, 24]
-"   end
-" end
+describe '<Plug>(textobj-parameter-i)'
+  before
+    tabnew
+    tabonly!
+
+    " function s:function(param_a, param_b, param_c)
+    "|---------+---------+---------+---------+---------|
+    "0         10        20     |  30    |  |40   |    50
+    "                     |-----|  |     |  |     |
+    "                              |-----|  |     |
+    "                                       |-----|
+    silent put =[
+          \ 'function s:function(param_a, param_b, param_c)'
+          \ , '  echo ...'
+          \ , 'endfunction'
+          \ , ]
+    1 delete _
+    normal! 1G
+  end
+
+  it 'selects proper range of text'
+    normal! 0f(l
+    execute "normal v\<Plug>(textobj-parameter-i)\<Esc>"
+    Expect [line("'<"), col("'<")] ==# [1, 21]
+    Expect [line("'>"), col("'>")] ==# [1, 27]
+    normal! 0f,l
+    execute "normal v\<Plug>(textobj-parameter-i)\<Esc>"
+    Expect [line("'<"), col("'<")] ==# [1, 30]
+    Expect [line("'>"), col("'>")] ==# [1, 36]
+    normal! 0f,;l
+    execute "normal v\<Plug>(textobj-parameter-i)\<Esc>"
+    Expect [line("'<"), col("'<")] ==# [1, 39]
+    Expect [line("'>"), col("'>")] ==# [1, 45]
+  end
+
+  it 'targets proper range of text'
+    normal! 0f(l
+    execute "silent normal y\<Plug>(textobj-parameter-i)"
+    Expect [line("'["), col("'[")] ==# [1, 21]
+    Expect [line("']"), col("']")] ==# [1, 27]
+    normal! 0f,l
+    execute "silent normal y\<Plug>(textobj-parameter-i)"
+    Expect [line("'["), col("'[")] ==# [1, 30]
+    Expect [line("'["), col("']")] ==# [1, 36]
+    normal! 0f,;l
+    execute "silent normal y\<Plug>(textobj-parameter-i)"
+    Expect [line("'["), col("'[")] ==# [1, 39]
+    Expect [line("']"), col("']")] ==# [1, 45]
+  end
+end
+
+
+
+
+describe '<Plug>(textobj-parameter-greedy-i)'
+  before
+    tabnew
+    tabonly!
+
+    " function s:function(param_a, param_b, param_c)
+    "|---------+---------+---------+---------+---------|
+    "0         10        20      | 30    ||  40   |    50
+    "                     |------|       ||       |
+    "                            |-------||       |
+    "                                     |-------|
+    silent put =[
+          \ 'function s:function(param_a, param_b, param_c)'
+          \ , '  echo ...'
+          \ , 'endfunction'
+          \ , ]
+    1 delete _
+    normal! 1G
+  end
+
+  it 'selects proper range of text'
+    normal! 0f(l
+    execute "normal v\<Plug>(textobj-parameter-greedy-i)\<Esc>"
+    Expect [line("'<"), col("'<")] ==# [1, 21]
+    Expect [line("'>"), col("'>")] ==# [1, 28]
+    normal! 0f,l
+    execute "normal v\<Plug>(textobj-parameter-greedy-i)\<Esc>"
+    Expect [line("'<"), col("'<")] ==# [1, 28]
+    Expect [line("'>"), col("'>")] ==# [1, 36]
+    normal! 0f,;l
+    execute "normal v\<Plug>(textobj-parameter-greedy-i)\<Esc>"
+    Expect [line("'<"), col("'<")] ==# [1, 37]
+    Expect [line("'>"), col("'>")] ==# [1, 45]
+  end
+
+  it 'targets proper range of text'
+    normal! 0f(l
+    execute "silent normal y\<Plug>(textobj-parameter-greedy-i)"
+    Expect [line("'["), col("'[")] ==# [1, 21]
+    Expect [line("']"), col("']")] ==# [1, 28]
+    normal! 0f,l
+    execute "silent normal y\<Plug>(textobj-parameter-greedy-i)"
+    Expect [line("'["), col("'[")] ==# [1, 28]
+    Expect [line("'["), col("']")] ==# [1, 36]
+    normal! 0f,;l
+    execute "silent normal y\<Plug>(textobj-parameter-greedy-i)"
+    Expect [line("'["), col("'[")] ==# [1, 37]
+    Expect [line("']"), col("']")] ==# [1, 45]
+  end
+end
