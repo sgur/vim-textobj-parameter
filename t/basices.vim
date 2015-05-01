@@ -52,17 +52,13 @@ describe '<Plug>(textobj-parameter-a)'
     tabnew
     tabonly!
 
-    " function s:function(param_a, param_b, param_c)
-    "|---------+---------+---------+---------+---------|
-    "0         10        20      ||30    ||  40   |    50
-    "                     |-------|      ||       |
-    "                            |-------||       |
-    "                                     |-------|
     silent put =[
-          \ 'function s:function(param_a, param_b, param_c)'
+          \   'function s:function(param_a, param_b, param_c)'
+          \ , '+---------+---------+---------+---------+---------+'
+          \ , '1       10        20        30        40        50'
           \ , '  echo ...'
           \ , 'endfunction'
-          \ , ]
+          \ ]
     1 delete _
     normal! 1G
   end
@@ -80,6 +76,7 @@ describe '<Plug>(textobj-parameter-a)'
     execute "normal v\<Plug>(textobj-parameter-a)\<Esc>"
     Expect [line("'<"), col("'<")] ==# [1, 37]
     Expect [line("'>"), col("'>")] ==# [1, 45]
+
   end
 
   it 'targets proper range of text'
@@ -99,6 +96,37 @@ describe '<Plug>(textobj-parameter-a)'
 end
 
 
+describe '<Plug>(textobj-parameter-a)-2'
+  before
+    tabnew
+    tabonly!
+
+    silent put =[
+          \   'function s:function( param_a , param_b , param_c )'
+          \ , '+---------+---------+---------+---------+---------+'
+          \ , '1       10        20        30        40        50'
+          \ , '  echo ...'
+          \ , 'endfunction'
+          \ ]
+    1 delete _
+    normal! 1G
+  end
+
+  it 'selects proper range of text'
+    normal! 0f(l
+    execute "normal v\<Plug>(textobj-parameter-a)\<Esc>"
+    Expect [line("'<"), col("'<")] ==# [1, 21]
+    Expect [line("'>"), col("'>")] ==# [1, 32]
+    normal! 0f,l
+    execute "normal v\<Plug>(textobj-parameter-a)\<Esc>"
+    Expect [line("'<"), col("'<")] ==# [1, 30]
+    Expect [line("'>"), col("'>")] ==# [1, 39]
+    normal! 0f,;l
+    execute "normal v\<Plug>(textobj-parameter-a)\<Esc>"
+    Expect [line("'<"), col("'<")] ==# [1, 38]
+    Expect [line("'>"), col("'>")] ==# [1, 50]
+  end
+end
 
 
 describe '<Plug>(textobj-parameter-i)'
