@@ -76,7 +76,6 @@ describe '<Plug>(textobj-parameter-a)'
     execute "normal v\<Plug>(textobj-parameter-a)\<Esc>"
     Expect [line("'<"), col("'<")] ==# [1, 37]
     Expect [line("'>"), col("'>")] ==# [1, 45]
-
   end
 
   it 'targets proper range of text'
@@ -102,9 +101,9 @@ describe '<Plug>(textobj-parameter-a)-2'
     tabonly!
 
     silent put =[
-          \   'function s:function( param_a , param_b , param_c )'
-          \ , '+---------+---------+---------+---------+---------+'
-          \ , '1       10        20        30        40        50'
+          \   'function s:function( param_a   ,   param_b   , param_c )'
+          \ , '+---------+---------+---------+---------+---------+---------+'
+          \ , '1       10        20        30        40        50        60'
           \ , '  echo ...'
           \ , 'endfunction'
           \ ]
@@ -116,15 +115,15 @@ describe '<Plug>(textobj-parameter-a)-2'
     normal! 0f(l
     execute "normal v\<Plug>(textobj-parameter-a)\<Esc>"
     Expect [line("'<"), col("'<")] ==# [1, 21]
-    Expect [line("'>"), col("'>")] ==# [1, 32]
+    Expect [line("'>"), col("'>")] ==# [1, 35]
     normal! 0f,l
     execute "normal v\<Plug>(textobj-parameter-a)\<Esc>"
-    Expect [line("'<"), col("'<")] ==# [1, 30]
-    Expect [line("'>"), col("'>")] ==# [1, 39]
+    Expect [line("'<"), col("'<")] ==# [1, 29]
+    Expect [line("'>"), col("'>")] ==# [1, 45]
     normal! 0f,;l
     execute "normal v\<Plug>(textobj-parameter-a)\<Esc>"
-    Expect [line("'<"), col("'<")] ==# [1, 38]
-    Expect [line("'>"), col("'>")] ==# [1, 50]
+    Expect [line("'<"), col("'<")] ==# [1, 43]
+    Expect [line("'>"), col("'>")] ==# [1, 55]
   end
 end
 

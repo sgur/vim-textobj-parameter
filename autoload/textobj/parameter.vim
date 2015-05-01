@@ -70,6 +70,9 @@ function! s:select_surrounds(include_surrounds)
 	" 左側に隣接するのがcomma/semicolonだったら、それも含めて削除
 	call cursor(spos[1:2])
 	let [start_chr, spos_new] = s:search_pos('b', [',',';','(','<','[','{'],[])
+	if a:include_surrounds
+		let spos_new = s:skip_ws_backward(spos_new)
+	endif
 	if start_chr == ',' || start_chr == ';'
 		let result[1] = s:normalize(spos_new)
 		return result
@@ -78,10 +81,10 @@ function! s:select_surrounds(include_surrounds)
 	" 右側に隣接するのがcomma/semicolonだったら、それも含めて削除
 	call cursor(epos[1:2])
 	let [end_chr, epos_new] = s:search_pos('', [',',';',')','>',']','}'],[])
+	if a:include_surrounds
+		let epos_new = s:skip_ws_forward(epos_new)
+	endif
 	if end_chr == ',' || end_chr == ';'
-		if a:include_surrounds
-			let epos_new = s:skip_ws(epos_new, 1)
-		endif
 		let result[2] = s:normalize(epos_new)
 		return result
 	endif
@@ -91,15 +94,23 @@ function! s:select_surrounds(include_surrounds)
 endfunction
 
 " 連続する空白をスキップする
-function! s:skip_ws(pos, forward)
+function! s:skip_ws_forward(pos)
 	let [lnum, col] = a:pos
 	let line = getline(lnum)
-	let cols = a:forward > 0
-				\ ? range(col, len(line)-1)
-				\ : range(col-1, 0, -1)
-	for c in cols
+	for c in range(col, len(line)-1)
 		if line[c] != ' '
 			return [lnum, c]
+		endif
+	endfor
+	return a:pos
+endfunction
+
+function! s:skip_ws_backward(pos)
+	let [lnum, col] = a:pos
+	let line = getline(lnum)
+	for c in range(col-1, 1, -1)
+		if line[c-1] != ' '
+			return [lnum, c+1]
 		endif
 	endfor
 	return a:pos
