@@ -1,5 +1,5 @@
 " vim-textobj-parameter - Text objects for function parameter.
-" Version: 0.1.1
+" Version: 0.2.0
 " Author: ampmmn(htmnymgw <delete>@<delete> gmail.com)
 " Modifier: sgur(sgurrr <delete>@<delete> gmail.com)
 " URL: http://d.hatena.ne.jp/ampmmn
@@ -27,28 +27,28 @@
 " Interface  "{{{1
 
 
-" i, による選択処理
+" i,
 function! textobj#parameter#select_i()  "{{{2
 	return s:select(s:const_skip_space)
 endfunction
 
 
-" i2, による選択処理
+" i2,
 function! textobj#parameter#select_greedy_i()  "{{{2
-	return s:select_a(0)
+	return s:select_surrounds(0)
 endfunction
 
 
-" a, による選択処理
-" 一階層上のパラメータ選択を行う
+" a,
 function! textobj#parameter#select_a()  "{{{2
-	return s:select_a(1)
+	return s:select_surrounds(1)
 endfunction
 
 
 " Misc.  "{{{1
 " variables {{{2
 " 検索の際、結果から除外するシンタックス名のパターン
+" Patterns that exclude after search
 if !exists('g:textobj_parameter_ignore_syntax')
 	let g:textobj_parameter_ignore_syntax = ['comment','string','character']
 endif
@@ -59,7 +59,7 @@ let s:separators = [',',';']
 let s:bracket_pairs = [['(',')'], ['[',']'],['{','}'],['<','>']]
 
 
-function! s:select_a(include_surrounds)
+function! s:select_surrounds(include_surrounds)
 	let result = s:select(!s:const_skip_space)
 	if type(result) == type(0)
 		return 0
