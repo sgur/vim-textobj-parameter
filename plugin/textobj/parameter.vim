@@ -1,5 +1,5 @@
 " vim-textobj-parameter - Text objects for function parameter.
-" Version: 0.2.0
+" Version: 0.2.1
 " Author: ampmmn(htmnymgw <delete>@<delete> gmail.com)
 " Modifier: sgur(sgurrr <delete>@<delete> gmail.com)
 " URL: http://d.hatena.ne.jp/ampmmn
