@@ -1,8 +1,8 @@
 vim-textobj-parameter
 =====================
 
-vim-textobj-parameter introduces text objects for parameters of functions.
-
+vim-textobj-parameter is a Vim plugin to provide text objects (`a,` and `i,` by
+default) to select parameters of functions.
 
 Usage
 -----
