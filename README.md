@@ -7,23 +7,29 @@ default) to select parameters of functions.
 Usage
 -----
 
-- `i,` to inner parameter object
+-   `i,` to inner parameter object
 
-    ```
+    ```vim
     function(param_a, param_b, param_c)
-             <----->  <----->  <----->
+             |<--->|  |<--->|  |<--->|
     ```
 
-- `a,` to a parameter object including whitespaces and comma
+-   `a,` to a parameter object including whitespaces and comma
 
-
-    ```
+    ```vim
     function(param_a, param_b, param_c)
              |<----->|
     function(param_a, param_b, param_c)
-    	            |<----->|
+                    |<----->|
     function(param_a, param_b, param_c)
                              |<----->|
+    ```
+
+-   In addition, 'i2,' is similar to `a,` except trailing whitespace characters (especially for first parameter)
+
+    ```vim
+    function(param_a, param_b, param_c)
+             |<---->|
     ```
 
 Requirement
@@ -40,5 +46,4 @@ Author
 ------
 
 - Original: [ampmmn](http://d.hatena.ne.jp/ampmmn/20100224/1267020691)
-- Modified: sgur <sgurrr@gmail.com>
-
+- Modified: sgur <mailto:sgurrr@gmail.com>
