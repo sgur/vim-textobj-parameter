@@ -59,7 +59,7 @@ let s:separators = [',',';']
 let s:bracket_pairs = [['(',')'], ['[',']'],['{','}'],['<','>']]
 
 
-function! s:select_surrounds(include_surrounds)
+function! s:select_surrounds(include_surrounds) "{{{
 	let result = s:select(!s:const_skip_space)
 	if type(result) == type(0)
 		return 0
@@ -91,10 +91,10 @@ function! s:select_surrounds(include_surrounds)
 
 	" どちらでもなければ、select_iと同じ挙動
 	return result
-endfunction
+endfunction "}}}
 
 " 連続する空白をスキップする
-function! s:skip_ws_forward(pos)
+function! s:skip_ws_forward(pos) "{{{
 	let [lnum, col] = a:pos
 	let line = getline(lnum)
 	for c in range(col, len(line)-1)
@@ -103,9 +103,9 @@ function! s:skip_ws_forward(pos)
 		endif
 	endfor
 	return a:pos
-endfunction
+endfunction "}}}
 
-function! s:skip_ws_backward(pos)
+function! s:skip_ws_backward(pos) "{{{
 	let [lnum, col] = a:pos
 	let line = getline(lnum)
 	for c in range(col-1, 1, -1)
@@ -114,10 +114,10 @@ function! s:skip_ws_backward(pos)
 		endif
 	endfor
 	return a:pos
-endfunction
+endfunction "}}}
 
 " 指定した位置のシンタックスが文字列またはコメントかどうかを判定
-function! s:is_ignore_syntax(pos)  "{{{2
+function! s:is_ignore_syntax(pos)  "{{{
 	let syn_name = synIDattr(synID(a:pos[0], a:pos[1],1), "name")
 	for item in g:textobj_parameter_ignore_syntax
 		if type(item) == type('') && syn_name =~? item
@@ -125,10 +125,10 @@ function! s:is_ignore_syntax(pos)  "{{{2
 		endif
 	endfor
 	return 0
-endfunction
+endfunction "}}}
 
 " 検索パターン文字列の作成
-function! s:create_search_pattern(separators, bracket_pairs) " {{{2
+function! s:create_search_pattern(separators, bracket_pairs) "{{{
 	" 区切り文字をマッチさせる部分のパターンを作成
 	let sep_pattern =''
 	for item in a:separators
@@ -148,10 +148,10 @@ function! s:create_search_pattern(separators, bracket_pairs) " {{{2
 		let search_pattern .= '\|'
 	endif
 	return '\V' . search_pattern . bracket_pattern
-endfunction
+endfunction "}}}
 
 " 括弧の階層レベルデータを作成
-function! s:create_bracket_level_info(bracket_pairs) " {{{2
+function! s:create_bracket_level_info(bracket_pairs) "{{{
 	let chr_dict_index = {}
 	let counts = []
 	" 括弧をマッチさせる部分のパターンを作成
@@ -164,10 +164,10 @@ function! s:create_bracket_level_info(bracket_pairs) " {{{2
 		let counts += [ a:bracket_pairs[x][2] ]
 	endfor
 	return [ chr_dict_index, counts ]
-endfunction
+endfunction "}}}
 
 " コメント、文字列等を除外してのserachpos
-function! s:searchpos(pat, opt)	" {{{2
+function! s:searchpos(pat, opt)	"{{{
 	" 検索のためのループ
 	while 1
 		let mpos = searchpos(a:pat, a:opt)
@@ -175,11 +175,11 @@ function! s:searchpos(pat, opt)	" {{{2
 			return mpos
 		endif
 	endwhile
-endfunction
+endfunction "}}}
 
 " カーソル位置にある文字が、比較演算子としての<,>なのか、
 " またはポインタ演算子としての->なのかを判定
-function! s:is_inequality_or_pointer_operator(chr, bracket_pairs) " {{{2
+function! s:is_inequality_or_pointer_operator(chr, bracket_pairs) "{{{
 	if a:chr != '<' && a:chr != '>'
 		return 0
 	endif
@@ -228,18 +228,18 @@ function! s:is_inequality_or_pointer_operator(chr, bracket_pairs) " {{{2
 	" カーソルを元の位置に戻す
 	call cursor(cur_l, cur_c)
 	return result
-endfunction
+endfunction "}}}
 
 " 現在位置のキャラクタが区切り文字かどうかを判定
-function! s:is_separator_chars(chr, separators)		"{{{2
+function! s:is_separator_chars(chr, separators) "{{{
 	" 見つかった文字が区切り文字リスト内にあった場合、
 	" ループを継続するかどうかを判定する
 	return index(a:separators, a:chr) != -1
-endfunction
+endfunction "}}}
 
 " 区切り文字のある位置を検索する
 " bracket_pairsで指定した括弧のネストを考慮して検索する。
-function! s:search_pos(search_opt, separators, bracket_pairs)  "{{{2
+function! s:search_pos(search_opt, separators, bracket_pairs) "{{{
 
 	" bracket_pairsをa:search_optに応じて複製を作成
 	let bracket_pairs = []
@@ -317,10 +317,10 @@ function! s:search_pos(search_opt, separators, bracket_pairs)  "{{{2
 	endwhile
 	call cursor(cur_pos)
 	return [ '', cur_pos ]
-endfunction
+endfunction "}}}
 
 " 行、列番号の補正
-function! s:normalize(pos)  "{{{2
+function! s:normalize(pos) "{{{
 	let [lineNr,colNr] = a:pos
 	if colNr > len(getline(lineNr))
 		let lineNr = lineNr+1
@@ -330,11 +330,11 @@ function! s:normalize(pos)  "{{{2
 		let colNr = len(getline(lineNr))
 	endif
 	return [0, lineNr, colNr, 0]
-endfunction
+endfunction "}}}
 
 " 検索結果のチェック
 " 必要があれば、ここでtextobj#user側に渡す値の補正をおこなう
-function! s:filter(start_chr, spos, end_chr, epos, skip_space)		" {{{2
+function! s:filter(start_chr, spos, end_chr, epos, skip_space) "{{{
 
 	" C/C++の構文からいくと、{ .. ; という選択がなされた場合は無効でいいはず
 	" (「ブロック先頭～ステートメントの終わり」という範囲選択は、このプラグインの意図するものではないため)
@@ -366,10 +366,10 @@ function! s:filter(start_chr, spos, end_chr, epos, skip_space)		" {{{2
 	endif
 
 	return ['v', s:normalize(spos), s:normalize(epos)]
-endfunction
+endfunction "}}}
 
 " 指定したカーソル位置のテキストを取得
-function! s:get_current_cursor_text(pos) " {{{2
+function! s:get_current_cursor_text(pos) "{{{
 
 	let chr = getline(a:pos[0])[a:pos[1]-1]
 	if index(s:separators, chr) != -1
@@ -382,9 +382,9 @@ function! s:get_current_cursor_text(pos) " {{{2
 	endif
 
 	return chr
-endfunction
+endfunction "}}}
 
-function! s:select(skip_space) " {{{2
+function! s:select(skip_space) "{{{
 	let chr = s:get_current_cursor_text(getpos('.')[1:2])
 	" Note: 一文字が前提になってしまっているのはなんとかしたいところ
 
@@ -406,12 +406,12 @@ function! s:select(skip_space) " {{{2
 	let [end_chr, epos] = s:search_pos('', s:separators, bracket_pairs_f)
 	" 前方、後方のいずれかで文字をみつけられなかった場合は何も選択しない
 	if start_chr == '' || end_chr == ''
-	return 0
-endif
+		return 0
+	endif
 
-" 検索結果のチェック
-return s:filter(start_chr, spos, end_chr, epos, a:skip_space)
-endfunction
+	" 検索結果のチェック
+	return s:filter(start_chr, spos, end_chr, epos, a:skip_space)
+endfunction "}}}
 
 let s:const_skip_space = 1
 
