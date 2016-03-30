@@ -237,6 +237,13 @@ function! s:is_separator_chars(chr, separators) "{{{
 	return index(a:separators, a:chr) != -1
 endfunction "}}}
 
+" Check surrounded by quote or escaped char
+function! s:is_surrounded_or_escaped() abort "{{{
+	return getline('.') =~ "'.*\\%" . col('.') . "c.*'"
+				\ || getline('.') =~ '".*\%' . col('.') . 'c.*"'
+				\ || getline('.')[col('.')-2] == '\'
+endfunction "}}}
+
 " 区切り文字のある位置を検索する
 " bracket_pairsで指定した括弧のネストを考慮して検索する。
 function! s:search_pos(search_opt, separators, bracket_pairs) "{{{
@@ -274,7 +281,7 @@ function! s:search_pos(search_opt, separators, bracket_pairs) "{{{
 		let chr = getline('.')[mpos[1]-1]
 		" 見つかった文字が区切り文字リスト内にあった場合、
 		" ループを継続するかどうかを判定する
-		if s:is_separator_chars(chr, a:separators) != 0
+		if s:is_separator_chars(chr, a:separators + [['''', ''''],['"', '"']]) != 0
 			if len(counts) == 0 || count(counts,1) == len(counts)
 				call cursor(cur_pos)
 				return [ chr, mpos ]
@@ -389,7 +396,7 @@ function! s:select(skip_space) "{{{
 	" Note: 一文字が前提になってしまっているのはなんとかしたいところ
 
 	" 現在のカーソル位置が区切り文字の場合は何もしない
-	if s:is_separator_chars(chr, s:separators) != 0
+	if s:is_separator_chars(chr, s:separators) != 0 && !s:is_surrounded_or_escaped()
 		return 0
 	endif
 
