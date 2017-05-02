@@ -31,10 +31,14 @@ endif
 
 " Interface  "{{{1
 
+if !exists('g:vim_textobj_parameter_mapping')
+    let g:vim_textobj_parameter_mapping = ','
+endif
+
 call textobj#user#plugin('parameter', {
       \   '-': {
-      \     'select-a': "a,",  '*select-a-function*': 'textobj#parameter#select_a'
-      \   , 'select-i': "i,",  '*select-i-function*': 'textobj#parameter#select_i'
+      \     'select-a': "a" . g:vim_textobj_parameter_mapping,  '*select-a-function*': 'textobj#parameter#select_a'
+      \   , 'select-i': "i" . g:vim_textobj_parameter_mapping,  '*select-i-function*': 'textobj#parameter#select_i'
       \   }
       \ , 'greedy': {
       \     'select-i': "i2,",  '*select-i-function*': 'textobj#parameter#select_greedy_i'

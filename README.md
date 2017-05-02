@@ -32,6 +32,15 @@ Usage
              |<---->|
     ```
 
+Configuration
+-------------
+
+By default this motion is mapped to ',' (comma).  The key mapping can be overridden by adding a line similar to this to your vimrc:
+
+```vim
+    let g:vim_textobj_parameter_mapping = ','
+```
+
 Requirement
 -----------
 
